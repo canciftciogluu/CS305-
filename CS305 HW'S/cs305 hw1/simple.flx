@@ -1,0 +1,21 @@
+%{
+#include <stdio.h>
+%}
+
+tNUMBER [0-9]+
+tNAME [A-Za-z]+"/"[A-Za-z]+
+
+%%
+{tNUMBER} { printf("found a number: %s\n",lexeme %s size &d \n",yytext, yyleng); }
+{tNAME} { printf("found a name: %s\n", yytext); }
+. { /* ignore other characters */ }
+
+"a" printf(found a\n");
+. ;
+%%
+
+int main() {
+    yylex();
+    return 0;
+}
+

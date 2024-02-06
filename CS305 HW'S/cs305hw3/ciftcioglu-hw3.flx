@@ -1,0 +1,58 @@
+%{
+#include "ciftciogluhw3.h"
+#include "ciftcioglu-hw3.tab.h" 
+int numlines = 1;
+%}
+
+tLOCALPART [A-Za-z0-9\-_]+(([A-Za-z0-9\-_]*|\.?)[A-Za-z0-9\-_])*
+tDOMAIN [A-Za-z0-9]+[A-Za-z0-9\-]*[A-Za-z0-9]+|[A-Za-z0-9]{1}
+
+%%
+
+"Mail" return tMAIL;
+"end Mail" return tENDMAIL;
+"schedule" 		{
+return tSCHEDULE;
+				}
+"end schedule" {
+return tENDSCH;
+				}
+"send" return  tSEND;
+"set" return tSET;
+"to" return tTO;
+"from" return tFROM;
+@ return tAT;
+, return tCOMMA;
+: return tCOLON;
+\( return tLPR;
+\) return tRPR;
+\[ return tLBR;
+\] return tRBR;
+
+[a-zA-Z\_]+[a-zA-Z0-9\_]*   {
+yylval.identifierStruct.str = strdup(yytext);
+yylval.identifierStruct.lineNum = numlines;
+return tIDENT;
+			                }
+["][^\"]*["]                {
+yylval.str = strdup(yytext);
+return tSTRING;
+			                }
+
+[0-9]{2}"/"[0-9]{2}"/"[0-9]{4}  {
+yylval.str = strdup(yytext);
+return tDATE;
+			                    }
+[0-9]{2}:[0-9]{2}				{
+yylval.str = strdup(yytext);
+return tTIME;
+			                    }
+
+{tLOCALPART}"@"({tDOMAIN}"."{tDOMAIN}"."{tDOMAIN}|{tDOMAIN}"."{tDOMAIN})    {
+yylval.str = strdup(yytext);
+return tADDRESS;
+			                                                                }
+[ \t]+ 
+[\n]       numlines++;
+.			return yytext[0];
+%%

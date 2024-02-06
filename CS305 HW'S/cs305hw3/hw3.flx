@@ -1,0 +1,106 @@
+%{
+#include "berksezer-hw3.h"    
+#include "berksezer-hw3.tab.h" 
+
+int lineCount = 1;
+%}
+
+tLOCALPART [A-Za-z0-9\-_]+(([A-Za-z0-9\-_]*|\.?)[A-Za-z0-9\-_])*
+tDOMAIN [A-Za-z0-9]+[A-Za-z0-9\-]*[A-Za-z0-9]+|[A-Za-z0-9]{1}
+
+%%
+
+"Mail" return tMAIL;
+"end Mail" return tENDMAIL;
+"schedule" return tSCHEDULE;
+"end schedule" return tENDSCH;
+"send" return  tSEND;
+"set" return tSET;
+"to" return tTO;
+"from" return tFROM;
+@ return tAT;
+, return tCOMMA;
+: return tCOLON;
+\( return tLPR;
+\) return tRPR;
+\[ return tLBR;
+\] return tRBR;
+
+
+[a-zA-Z\_]+[a-zA-Z0-9\_]* { 
+
+    char *result = strdup(yytext);  // Duplicates the string
+    if (!result) {
+        // Handle memory allocation error
+    }
+    yylval.identNode.lineNum = lineCount;
+    yylval.identNode.value = result;
+    return tIDENT;
+}
+
+
+
+["][^\"]*["]  {
+    // Assuming yytext is a valid string enclosed in double quotes
+    char *result = strdup(yytext);  // Duplicates the string
+    if (!result) {
+        // Handle memory allocation error
+    }
+    yylval.stringNode.value = result;
+    yylval.lineNum = lineCount;  // Assign line number
+    return tSTRING;
+}
+
+
+
+
+
+[0-9]{2}"/"[0-9]{2}"/"[0-9]{4} {
+    // Assuming yytext is a valid date string in the format "MM/DD/YYYY"
+    char *result = (char *)malloc(strlen(yytext));
+
+    // Extract month, day, and year
+    int month, day, year;
+    sscanf(yytext, "%d/%d/%d", &month, &day, &year);
+
+    // Map month number to month name
+    const char *monthNames[] = {"January", "February", "March", "April", "May", "June", "July",
+                                "August", "September", "October", "November", "December"};
+
+    if (month >= 1 && month <= 12) {
+        strcpy(result, monthNames[month - 1]);
+        yylval.dateNode.month = result;
+    } else {
+        // Handle invalid month
+        free(result);  // Free the allocated memory
+        // You can add error handling or return an error token
+    }
+
+    return tDATE;
+}
+
+
+
+[0-9]{2}:[0-9]{2} return tTIME;
+
+
+{tLOCALPART}"@"({tDOMAIN}"."{tDOMAIN}"."{tDOMAIN}|{tDOMAIN}"."{tDOMAIN}) {
+    // Assuming yytext is a valid email address
+    char *result = strdup(yytext);  // Duplicates the string
+    if (!result) {
+        // Handle memory allocation error
+    }
+    yylval.adressNode.mail = result;
+    return tADDRESS;
+}
+
+
+
+
+[\n] lineCount += 1; 
+[\t ] ; 
+. return yytext[0];
+
+
+
+%%

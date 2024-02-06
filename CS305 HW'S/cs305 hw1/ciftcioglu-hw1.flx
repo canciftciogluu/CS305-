@@ -1,0 +1,134 @@
+/* can ciftcioglu 26532 cs305 hw1 Submission date:23/10/2023 */
+        /* token creating */
+tADDRESS ([a-zA-Z0-9\-\_]+\.?[a-zA-Z0-9\-\_]+)+@[a-zA-Z0-9\_][a-zA-Z0-9\_\-]+\.[a-zA-Z0-9\-\_]+\.?[a-zA-Z0-9\_]+
+tSTRING \"[^"]+\"
+tIDENT [a-zA-Z\_][a-zA-Z0-9\_]*
+tDATE ([0-9]{2}\/[0-9]{2}\/[0-9]{4}|[0-9]{2}-[0-9]{2}-[0-9]{4}|[0-9]{2}\.[0-9]{2}\.[0-9]{4}) 
+tTIME ([0-9]{2}):([0-9]{2})
+tCOMMA [,]
+tLPR [(]
+tLBR [[]
+tAT [@]
+tCOLON [:]
+tRPR [)]
+tRBR []]
+tCOMMENT "//".*
+tCOMMENTMULTI "/*"([^*]|\*+[^/])*\*+"/"
+
+%{
+    
+    int line_no = 1;
+%}
+
+%%
+
+\n line_no++;
+
+
+{tADDRESS} printf("%d_tADDRESS_(%s)\n", line_no, yytext);
+"schedule" printf("%d_tSCHEDULE\n", line_no);
+"send" printf("%d_tSEND\n", line_no);
+"from" printf("%d_tFROM\n", line_no);
+"Mail" printf("%d_tMAIL\n", line_no);
+"to" printf("%d_tTO\n", line_no);
+"set" printf("%d_tSET\n", line_no);
+"end Mail" printf("%d_tENDMAIL\n", line_no);
+"end schedule" printf("%d_tENDSCH\n", line_no);
+
+
+{tCOMMENT} {
+    int size = yyleng;
+    char *result = (char *)malloc(sizeof(char) * size);
+    int i = 0, j = 0;
+
+    while (i < size) {
+        if (yytext[i] == '\n') {
+            line_no++;
+        }
+
+        result[j] = yytext[i];
+        i++;
+        j++;
+    }
+
+    printf("%d_tCOMMENT_(%s)\n", line_no - 1, yytext);
+}
+
+{tCOMMENTMULTI} {
+    int size = yyleng;
+    char *result = (char *)malloc(sizeof(char) * size);
+    int i = 0, j = 0;
+
+    while (i < size) {
+        if (yytext[i] == '\n') {
+            line_no++;
+        }
+
+        result[j] = yytext[i];
+        i++;
+        j++;
+    }
+
+    printf("%d_tCOMMENTMULTI_(%s)\n", line_no - 1, yytext);
+}
+
+
+
+
+{tSTRING} {
+      
+    int size = yyleng;
+    char *result = (char *)malloc(sizeof(char) * size);
+    int i = 0, j = 0;
+
+    while (i < size) {
+        if (yytext[i] == '\n') {
+            line_no++;
+        }
+
+        if (yytext[i] != '\"') {
+            result[j] = yytext[i];
+            i++;
+            j++;
+        } else {
+            i++;
+        }
+    }
+    
+    printf("%d_tSTRING_(%s)\n", line_no - 1, result);
+    
+}
+
+{tIDENT} printf("%d_tIDENT_(%s)\n", line_no, yytext);
+
+{tDATE} printf("%d_tDATE_(%s)\n", line_no, yytext);
+
+{tTIME} printf("%d_tTIME_(%s)\n", line_no, yytext);
+
+{tCOMMA} printf("%d_tCOMMA\n", line_no);
+
+{tLPR} printf("%d_tLPR\n", line_no);
+
+{tLBR} printf("%d_tLBR\n", line_no);
+
+{tAT} printf("%d_tAT\n", line_no);
+
+{tCOLON} printf("%d_tCOLON\n", line_no);
+
+{tRPR} printf("%d_tRPR\n", line_no);
+
+{tRBR} printf("%d_tRBR\n", line_no);
+
+[ \t]+ ;     /* Ignore spaces */
+. printf("%d_ILLEGAL CHARACTER_(%s)\n", line_no, yytext);
+
+
+%%
+
+int main() {
+    yylex();
+    return(0);
+}
+
+
+

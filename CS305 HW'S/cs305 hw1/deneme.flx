@@ -1,0 +1,32 @@
+%{
+#include <stdio.h>
+%}
+
+%option noyywrap
+
+%%
+
+"Mail"                 { printf("%d_tMAIL\n", yylineno); }
+"schedule"             { printf("%d_tSCHEDULE\n", yylineno); }
+"end Mail"             { printf("%d_tENDMAIL\n", yylineno); }
+"end schedule"         { printf("%d_tENDSCHEDULE\n", yylineno); }
+"send"                 { printf("%d_tSEND\n", yylineno); }
+"to"                   { printf("%d_tTO\n", yylineno); }
+"from"                 { printf("%d_tFROM\n", yylineno); }
+"set"                  { printf("%d_tSET\n", yylineno); }
+","                    { printf("%d_tCOMMA\n", yylineno); }
+"("                    { printf("%d_tLPR\n", yylineno); }
+"["                    { printf("%d_tLBR\n", yylineno); }
+"@"                    { printf("%d_tAT\n", yylineno); }
+":"                    { printf("%d_tCOLON\n", yylineno); }
+")"                    { printf("%d_tRPR\n", yylineno); }
+"]"                    { printf("%d_tRBR\n", yylineno); }
+{identifier}           { printf("%d_tIDENT_(%s)\n", yylineno, yytext); }
+{string}               { printf("%d_tSTRING_(%s)\n", yylineno, yytext); }
+{email}                { printf("%d_tADDRESS_(%s)\n", yylineno, yytext); }
+{date}                 { printf("%d_tDATE_(%s)\n", yylineno, yytext); }
+{time}                 { printf("%d_tTIME_(%s)\n", yylineno, yytext); }
+.                      { printf("%d_ILLEGAL_CHARACTER_(%s)\n", yylineno, yytext); }
+[ \t]+                 { /* Ignore whitespace */ }
+\n                     { yylineno++; }
+
